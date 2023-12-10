@@ -4,6 +4,8 @@ import argparse
 import os
 from pathlib import Path
 
+from serializer.txt import serialize as txt_serialize
+
 ALLOWED_EXT = (
     "",
     ".doc",
@@ -50,12 +52,22 @@ def main():
     )
 
     parser.add_argument(
+        "-t",
+        "--type",
+        default="txt",
+        type=str,
+        choices=("txt",),
+        help=f"Output file type, default is 'txt'",
+    )
+
+    parser.add_argument(
         "-E",
         "--no-ext-check",
         action="store_true",
         help=f"Don't filter file paths by their extension \
 (only {', '.join(ALLOWED_EXT[1:])} files and files with no extension are allowed by default)",
     )
+
     args = parser.parse_args()
     # endregion
 
@@ -76,22 +88,8 @@ def main():
         file_paths = [f for f in file_paths if is_ext_correct(f)]
     # endregion
 
-    for file_path in file_paths:
-        print(f"Processing '{file_path}'...")
-
-        file_in = open(file_path, "rb")
-        file_out = open(str(file_path) + ".txt", "wb")
-
-        while file_in_byte := file_in.read(1):
-            ch = int.from_bytes(file_in_byte, signed=True)
-
-            if ch == 26:
-                continue
-
-            if ch < 0:
-                ch = (ch + 256) % 128
-
-            file_out.write(chr(ch).encode(args.encoding, errors="ignore"))
+    if args.type == "txt":
+        txt_serialize(file_paths, encoding=args.encoding)
 
     print("Done!")
 

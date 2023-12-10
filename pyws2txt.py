@@ -29,15 +29,26 @@ def is_ext_correct(filepath: str) -> bool:
 def main():
     # region Parsing args
     parser = argparse.ArgumentParser(description="Convert WordStar docs to .txt files")
+
     parser.add_argument(
         "work_path", type=str, help="Path to a file or a directory with files"
     )
+
     parser.add_argument(
         "-r",
         "--recursive",
         action="store_true",
         help=f"Scan the specified folder for files recursively",
     )
+
+    parser.add_argument(
+        "-e",
+        "--encoding",
+        default="utf-8",
+        type=str,
+        help=f"Output file's encoding, default is 'utf-8'",
+    )
+
     parser.add_argument(
         "-E",
         "--no-ext-check",
@@ -69,7 +80,7 @@ def main():
         print(f"Processing '{file_path}'...")
 
         file_in = open(file_path, "rb")
-        file_out = open(str(file_path) + ".txt", "w", encoding="utf8")
+        file_out = open(str(file_path) + ".txt", "wb")
 
         while file_in_byte := file_in.read(1):
             ch = int.from_bytes(file_in_byte, signed=True)
@@ -80,7 +91,7 @@ def main():
             if ch < 0:
                 ch = (ch + 256) % 128
 
-            file_out.write(chr(ch))
+            file_out.write(chr(ch).encode(args.encoding, errors="ignore"))
 
     print("Done!")
 

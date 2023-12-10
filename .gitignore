@@ -3,6 +3,7 @@ __pycache__/
 build/
 dist/
 .upx/
+.mypy_cache/
 
 *.txt
 *.spec
